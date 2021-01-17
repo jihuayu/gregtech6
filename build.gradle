@@ -467,10 +467,10 @@ task defaultConfigPack(type: Zip) {
 	destinationDir = new File('./build/libs/')
 }
 
-jar.dependsOn supporterlist
-jar.dependsOn supporterlistgold
-jar.dependsOn changelog
-jar.dependsOn defaultConfigPack
+//jar.dependsOn supporterlist
+//jar.dependsOn supporterlistgold
+//jar.dependsOn changelog
+//jar.dependsOn defaultConfigPack
 
 reobf {
 	//reobf(coreJar) {
