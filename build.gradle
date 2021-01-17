@@ -149,9 +149,9 @@ apply plugin: 'forge'
 //apply plugin: 'artemis'
 //apply plugin: 'artemis-fluid'
 
-group = "com.gregoriust.gregtech"
-archivesBaseName = "gregtech_1.7.10"
-version = "<UNKNOWN>"
+group = "jihuayu"
+archivesBaseName = "occ"
+version = '1.0.0-RedStoneland-jihuayu'
 
 sourceCompatibility = 1.7
 targetCompatibility = 1.7
@@ -327,8 +327,6 @@ runServer {
 	}
 }
 
-version = '1.0.0-RedStoneland-jihuayu'
-
 processResources {
 	inputs.property "version", project.version
 	inputs.property "mcversion", "1.7.10"
@@ -481,7 +479,7 @@ reobf {
 }
 
 artifacts {
-	archives devJar, sourceJar, changelog.output, supporterlist.output, supporterlistgold.output, defaultConfigPack //, coreJar
+	archives devJar, sourceJar//, changelog.output, supporterlist.output, supporterlistgold.output, defaultConfigPack //, coreJar
 }
 
 if (!hasProperty("mavenUsername")) {
