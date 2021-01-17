@@ -113,10 +113,10 @@ repositories {
 	//// - OpenBlocks
 	//// - IC2Classic
 	//// Main storage for forestry_1.7.10
-	//maven {
-	//	name = "ic2"
-	//	url = "http://maven.ic2.player.to/"
-	//}
+	maven {
+		name = "ic2"
+		url = "http://maven.ic2.player.to/"
+	}
 	//// Main storage for waila, jabba
 	//maven {
 	//	name = "profmobius"
@@ -139,10 +139,10 @@ repositories {
 	//	url "http://www.ryanliptak.com/maven/"
 	//}
 	//// Main storage for OpenComputers
-	//maven {
-	//	name = "OC repo"
-	//	url = "http://maven.cil.li/"
-	//}
+	maven {
+		name = "OC repo"
+		url = "http://maven.cil.li/"
+	}
 }
 
 apply plugin: 'forge'
@@ -207,7 +207,7 @@ dependencies {
 	compileOnly "cofh:CoFHCore:1.7.10R3.0.4:dev"
 	compileOnly "cofh:CoFHLib:1.7.10R3.0.3:dev"
 	compileOnly "applecore:AppleCore:1.7.10-3.1.1:deobf"
-	compileOnly "li.cil.oc:OpenComputers:MC1.7.10-1.7.2.1204:dev"
+	compile "li.cil.oc:OpenComputers:MC1.7.10-1.7.5.1290:dev"
 	// This ComputerCraft thing is *SUCH* a hack, but ComputerCraft is... not right...  This only works because of CodeChickenCore Magic being included up above...
 	compileOnly "dan200.computercraft:ComputerCraft:1.75"
 	compileOnly "openblocks:OpenBlocks:1.7.10-1.6-1.7.10:deobf"
@@ -225,7 +225,7 @@ dependencies {
 	compileOnly "com.builtbroken:VoltzEngine:1.7.10-1.11.0b466:deobf"
 	compileOnly "com.hbm:hbm:1.0.27:dev"
 	compileOnly "com.celestek.hexcraft:HEXCraft:1.7.10-0.13.1:dev"
-
+	compile "net.industrial-craft:industrialcraft-2:2.2.827-experimental:dev"
 	// List of potentially useful mods that may or may not be linked in here:
 	//compileOnly "appeng:appliedenergistics2:rv3-beta-6:dev"
 	//compileOnly "applecore:AppleCore:1.7.10-3.1.1:deobf"
@@ -327,53 +327,15 @@ runServer {
 	}
 }
 
-task buildInfo {
-	def matcher = "v6.[0-9]*"
-	def cmdTag = "git describe --match ${matcher} --abbrev=0 --exact-match --dirty"
-	def procTag = cmdTag.execute()
-	procTag.waitFor()
-	if (procTag.exitValue() == 0) {
-		ext.isRelease = true
-		ext.tag = "${procTag.text.trim().substring(1)}" // Full Release
-		ext.version = ext.tag
-	} else {
-		ext.isRelease = false
-		def cmdLat = "git describe --match ${matcher} --dirty"
-		def procLat = cmdLat.execute()
-		procLat.waitFor()
-		if (procLat.exitValue() == 0) {
-			ext.tag = procLat.text.trim().substring(1)
-		} else {
-			def cmdDes = "git describe --dirty"
-			def procDes = cmdDes.execute()
-			procDes.waitFor()
-			if (procDes.exitValue() == 0) {
-				ext.tag = "DEV-${procDes.text.trim()}"
-			} else {
-				ext.tag = "NOGIT" // No tags at all?!
-			}
-		}
-		if (System.getenv().VERSION_FALLBACK != null) {
-			ext.version = System.getenv().VERSION_FALLBACK
-		} else {
-			ext.version = ext.tag
-		}
-	}
-}
-
-if (System.getenv().ARTIFACT_VERSION == null) {
-	version = "${project.buildInfo.version}"
-} else {
-	version = "${System.getenv().ARTIFACT_VERSION}"
-}
+version = '1.0.0-RedStoneland-jihuayu'
 
 processResources {
-	inputs.property "version", project.buildInfo.tag
-	inputs.property "mcversion", project.minecraft.version
+	inputs.property "version", project.version
+	inputs.property "mcversion", "1.7.10"
 
 	from(sourceSets.main.resources.srcDirs) {
 		include 'mcmod.info'
-		expand 'version':project.buildInfo.tag, 'mcversion':project.minecraft.version
+		expand 'version':project.version, 'mcversion': "1.7.10"
 	}
 	from(sourceSets.main.resources.srcDirs) {
 		exclude 'mcmod.info'
@@ -382,8 +344,8 @@ processResources {
 
 task generateBuildInfo(type: Copy) {
 	def templateContext = [
-		version: project.buildInfo.tag,
-		mcversion: project.minecraft.version,
+		version: project.version,
+		mcversion: "1.7.10",
 		builddate: new Date().toString(),
 	]
 	inputs.properties templateContext
@@ -445,42 +407,21 @@ task wrapper(type: Wrapper) {
 //classes.finalizedBy weave
 
 jar {
-	manifest {
-		attributes(
-			'FMLAT': 'gregtech_at.cfg',
-			'FMLCorePluginContainsFMLMod': 'true',
-			'FMLCorePlugin': 'gregtech.asm.GT_ASM'
-		)
-	}
-	configurations.shade.each { dep ->
-		from(project.zipTree(dep)) {
-			exclude 'META-INF', 'META-INF/**'
-		}
-	}
+	include 'jihuayu/**' , 'mcmod.info'
 }
 
 task sourceJar(type: Jar) {
 	manifest {}
 	classifier = 'sources'
 	from sourceSets.main.allSource
-	exclude 'assets/**', 'logos/**'
+
 }
 
 task devJar(type: Jar) {
-	manifest {
-		attributes(
-			'FMLAT': 'gregtech_at.cfg',
-			'FMLCorePluginContainsFMLMod': 'true',
-			'FMLCorePlugin': 'gregtech.asm.GT_ASM'
-		)
-	}
-	configurations.shade.each { dep ->
-		from(project.zipTree(dep)) {
-			exclude 'META-INF', 'META-INF/**'
-		}
-	}
+
 	classifier = 'dev'
 	from sourceSets.main.output
+	include 'jihuayu/**' ,  'mcmod.info'
 }
 
 //task coreJar(type: Jar) {
@@ -555,17 +496,3 @@ if (!hasProperty("mavenURL")) {
 	ext.mavenURL="${System.getenv().MAVEN_URL}"
 }
 
-if ( !project.buildInfo.tag.contains("-dirty") && (System.getenv().ONLY_RELEASES!="true" || project.buildInfo.isRelease) ) {
-	task testIfUploadable {}
-
-	uploadArchives {
-		repositories {
-			mavenDeployer {
-				uniqueVersion = false
-				repository(url: mavenURL) {
-					authentication(userName: mavenUsername, password: mavenPassword)
-				}
-			}
-		}
-	}
-}
